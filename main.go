@@ -10,7 +10,7 @@ import (
 )
 
 // Should handle CLI argument parsing, directory scanning to find manga chapters, coordinating conversion process, and error handling
-
+// argument should be the dir of a overall manga, then it needs to recurse through all the chapters
 func main() {
 	// Maybe we read directories through String, idk
 	dirPtr := flag.String("dir", ".", "used to specify the folder directory")
@@ -31,7 +31,25 @@ func main() {
 		fmt.Printf("Error: %s\n", err)
 		os.Exit(1) // Exit with error
 	}
-	// Process images to put to epub
+	// Recurse through dir to get the chapters, it is safe to do so since we already validated
+	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Check if is dir and is direct child of the dir of overall manga
+		if info.IsDir() && filepath.Dir(path) == dir && path != dir {
+			fmt.Printf("Found chapter: %s\n", path)
+			// Process chapter
+		}
+
+		// Continue walking
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1) // Exit with error
+	}
 }
 
 func directoryValidator(dir string) error {
