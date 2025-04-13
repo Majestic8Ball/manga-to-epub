@@ -3,6 +3,8 @@
 A command-line tool for converting manga image folders into EPUB files.
 Intended for use with HakuNeko program: https://hakuneko.download/
 
+Can use created EPUB for programs like Yomu and other EPUB readers
+
 NOTE: Probably only works on UNIX Based systems
 
 ## Features
