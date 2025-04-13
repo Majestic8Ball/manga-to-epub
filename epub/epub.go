@@ -28,6 +28,9 @@ func MakeEPub(dir string, title string, author string, outputFolder string) erro
 
 	fmt.Printf("Found %d images in directory %s\n", len(imgs), dir)
 
+	var coverId epub.Id
+	var coverFile string
+
 	for i, img := range imgs {
 		imgFile := filepath.Base(img)
 
@@ -37,10 +40,15 @@ func MakeEPub(dir string, title string, author string, outputFolder string) erro
 			continue
 		}
 
-		_, err = manga.AddImage(imgFile, imgData)
+		imageId, err := manga.AddImage(imgFile, imgData)
 		if err != nil {
 			fmt.Printf("Warning: Error adding image %s to EPUB: %v\n", imgFile, err)
 			continue
+		}
+
+		if i == 0 {
+			coverId = imageId
+			coverFile = imgFile
 		}
 
 		xhtmlContent := fmt.Sprintf(`
@@ -69,6 +77,33 @@ func MakeEPub(dir string, title string, author string, outputFolder string) erro
 
 	// Set metadata
 	// Going to need more input from flags; author, identifier
+
+	if coverId != "" {
+		manga.SetCoverImage(coverId)
+
+		coverXHTML := fmt.Sprintf(`
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Cover</title>
+    <style type="text/css">
+        body { margin: 0; padding: 0; text-align: center; }
+        img { max-width: 100%%; height: auto; }
+    </style>
+</head>
+<body>
+    <img src="%s" alt="Cover" />
+</body>
+</html>`, coverFile)
+
+		_, err := manga.AddXHTML("cover.xhtml", coverXHTML, 0)
+		if err != nil {
+			fmt.Printf("Warning: Error adding cover page: %v\n", err)
+		} else {
+			manga.AddNavpoint("Cover", "cover.xhtml", 0)
+		}
+	}
+
 	manga.SetTitle(title)
 	manga.AddAuthor(author)
 	err = manga.SetUUID(uuid.New().String())
