@@ -11,7 +11,7 @@ import (
 )
 
 // Will be fed in a directory with a Chapter, needs to sort the pages -> make the EPub -> put it somewhere(?)
-func MakeEPub(dir string, title string, author string, outputPath string) error {
+func MakeEPub(dir string, title string, author string, outputFolder string) error {
 	manga := epub.New()
 
 	// Loop through the dir adding all the images to the EPub with manga.AddImage
@@ -65,9 +65,7 @@ func MakeEPub(dir string, title string, author string, outputPath string) error 
 		manga.AddNavpoint(pageName, xhtmlFile, i+1)
 	}
 
-	if outputPath == "" {
-		outputPath = filepath.Join(dir, fmt.Sprintf("%s.epub", title))
-	}
+	outputPath := filepath.Join(outputFolder, fmt.Sprintf("%s.epub", title))
 
 	// Set metadata
 	// Going to need more input from flags; author, identifier

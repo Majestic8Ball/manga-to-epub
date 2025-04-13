@@ -43,6 +43,13 @@ func main() {
 		// Having errors with the dir -> chapter pipeline, going to have to normalize paths before comparison
 		dirAbs, _ := filepath.Abs(dir)
 		pathDirAbs, _ := filepath.Abs(filepath.Dir(path))
+		// Create output folder
+		outputFolder := filepath.Join(dir, "epubs")
+		err = os.MkdirAll(outputFolder, 0755)
+		if err != nil {
+			return fmt.Errorf("error creating output folder: %w", err)
+		}
+
 		if info.IsDir() && pathDirAbs == dirAbs && path != dir {
 			fmt.Printf("Found chapter: %s\n", path)
 			// Process chapter
@@ -50,13 +57,9 @@ func main() {
 			chap := filepath.Base(path)
 			fullTitle := title + " " + chap
 
-			outputPath := filepath.Join(dir, chap+".epub")
-
 			fmt.Printf("Making Title: %v\n", fullTitle)
 			fmt.Printf("Making EPub: %v\n", path)
-			fmt.Printf("Output path: %v\n", outputPath)
-
-			err := epub.MakeEPub(path, fullTitle, author, outputPath)
+			err := epub.MakeEPub(path, fullTitle, author, outputFolder)
 			if err != nil {
 				fmt.Printf("Error creating EPUB: %v\n", err)
 				// Continue anyway
