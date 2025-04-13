@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 )
 
+const Version = "0.1.0"
+
 // Should handle CLI argument parsing, directory scanning to find manga chapters, coordinating conversion process, and error handling
 // argument should be the dir of a overall manga, then it needs to recurse through all the chapters
 func main() {
@@ -16,9 +18,15 @@ func main() {
 	dirPtr := flag.String("dir", ".", "used to specify the folder directory")
 	titlePtr := flag.String("title", "N/A", "designate title of epub")
 	authorPtr := flag.String("author", "N/A", "set author name")
+	versionFlag := flag.Bool("version", false, "print version information")
 
 	// Parses Command-Line flag
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Printf("manga-to-epub version %s\n", Version)
+		os.Exit(0)
+	}
 
 	// use the flags value
 	dir := *dirPtr
