@@ -4,9 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/Majestic8Ball/manga-to-epub/epub"
 	"os"
 	"path/filepath"
-	//"github.com/Majestic8Ball/manga-to-epub/epub"
 )
 
 // Should handle CLI argument parsing, directory scanning to find manga chapters, coordinating conversion process, and error handling
@@ -15,6 +15,7 @@ func main() {
 	// Maybe we read directories through String, idk
 	dirPtr := flag.String("dir", ".", "used to specify the folder directory")
 	titlePtr := flag.String("title", "N/A", "designate title of epub")
+	authorPtr := flag.String("author", "N/A", "set author name")
 
 	// Parses Command-Line flag
 	flag.Parse()
@@ -22,6 +23,7 @@ func main() {
 	// use the flags value
 	dir := *dirPtr
 	title := *titlePtr
+	author := *authorPtr
 
 	fmt.Printf("Directory: %s, Title: %s\n", dir, title)
 	// Now we need to use that directory to find and validate the directory
@@ -38,9 +40,29 @@ func main() {
 		}
 
 		// Check if is dir and is direct child of the dir of overall manga
-		if info.IsDir() && filepath.Dir(path) == dir && path != dir {
+		// Having errors with the dir -> chapter pipeline, going to have to normalize paths before comparison
+		dirAbs, _ := filepath.Abs(dir)
+		pathDirAbs, _ := filepath.Abs(filepath.Dir(path))
+		if info.IsDir() && pathDirAbs == dirAbs && path != dir {
 			fmt.Printf("Found chapter: %s\n", path)
 			// Process chapter
+			// This is going to be from the epub.go func
+			chap := filepath.Base(path)
+			fullTitle := title + " " + chap
+
+			outputPath := filepath.Join(dir, chap+".epub")
+
+			fmt.Printf("Making Title: %v\n", fullTitle)
+			fmt.Printf("Making EPub: %v\n", path)
+			fmt.Printf("Output path: %v\n", outputPath)
+
+			err := epub.MakeEPub(path, fullTitle, author, outputPath)
+			if err != nil {
+				fmt.Printf("Error creating EPUB: %v\n", err)
+				// Continue anyway
+				return nil
+			}
+			fmt.Printf("Successfully created EPUB for %s\n", chap)
 		}
 
 		// Continue walking
@@ -50,6 +72,8 @@ func main() {
 		fmt.Printf("Error: %s\n", err)
 		os.Exit(1) // Exit with error
 	}
+
+	fmt.Println("All chapters processed")
 }
 
 func directoryValidator(dir string) error {
