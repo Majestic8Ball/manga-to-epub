@@ -1,8 +1,5 @@
-name: Release
-on: 
-  push:
-    tags:
-      - 'v*'
+name: Build
+on: [push]
 
 jobs:
   build:
@@ -28,12 +25,3 @@ jobs:
           GOOS=linux GOARCH=amd64 go build -o build/manga-to-epub-linux-amd64
           GOOS=windows GOARCH=amd64 go build -o build/manga-to-epub-windows-amd64.exe
           
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/manga-to-epub-darwin-amd64
-            build/manga-to-epub-darwin-arm64
-            build/manga-to-epub-linux-amd64
-            build/manga-to-epub-windows-amd64.exe
-          generate_release_notes: true
