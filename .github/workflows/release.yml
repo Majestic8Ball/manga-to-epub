@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.19'
+          
+      - name: Build binaries
+        run: |
+          mkdir -p build
+          GOOS=darwin GOARCH=amd64 go build -o build/manga-to-epub-darwin-amd64
+          GOOS=darwin GOARCH=arm64 go build -o build/manga-to-epub-darwin-arm64
+          GOOS=linux GOARCH=amd64 go build -o build/manga-to-epub-linux-amd64
+          GOOS=windows GOARCH=amd64 go build -o build/manga-to-epub-windows-amd64.exe
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/manga-to-epub-darwin-amd64
+            build/manga-to-epub-darwin-arm64
+            build/manga-to-epub-linux-amd64
+            build/manga-to-epub-windows-amd64.exe
+          generate_release_notes: true
