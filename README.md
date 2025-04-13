@@ -40,3 +40,9 @@ manga-to-epub -dir /path/to/manga/directory -title Title -author Author
 ```
 This will then automatically go to the directory and create the epubs and place them in a folder it creates in the directory provided called ``/epubs``
 
+# Future Plans
+>Probably easy stuff, im just lazy
+
+- Image flag
+- Other metadata stuffs
+
